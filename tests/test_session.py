@@ -70,7 +70,7 @@ class TestSessionLifecycle:
 class TestSessionEventTracking:
     def test_llm_response_updates_state(self, empty_contract):
         with empty_contract.session() as s:
-            s.emit_llm_response(model="gpt-4.1", output="hi", cost=0.005, prompt_tokens=50, completion_tokens=10)
+            s.emit_llm_response(model="gpt-5.4-nano", output="hi", cost=0.005, prompt_tokens=50, completion_tokens=10)
 
         assert s.state.total_cost_usd == 0.005
         assert s.state.total_tokens == 60
@@ -102,14 +102,14 @@ class TestSessionEnforcement:
     def test_require_clause_passes(self):
         c = Contract("test").require(_cost_check(1.0), description="budget")
         with c.session() as s:
-            s.emit_llm_response(model="gpt-4.1", output="hi", cost=0.01)
+            s.emit_llm_response(model="gpt-5.4-nano", output="hi", cost=0.01)
         assert s.is_compliant
         assert s.violation_count == 0
 
     def test_require_clause_fails_log(self):
         c = Contract("test").require(_cost_check(0.001), description="tiny budget", on_fail="log")
         with c.session() as s:
-            s.emit_llm_response(model="gpt-4.1", output="hi", cost=0.01)
+            s.emit_llm_response(model="gpt-5.4-nano", output="hi", cost=0.01)
         assert not s.is_compliant
         assert s.violation_count == 1
         assert "exceeds" in s.violations[0].message
@@ -148,7 +148,7 @@ class TestSessionEnforcement:
             .forbid(_tool_forbidden("delete"), description="no delete", on_fail="log")
         )
         with c.session() as s:
-            s.emit_llm_response(model="gpt-4.1", output="hi", cost=0.01)
+            s.emit_llm_response(model="gpt-5.4-nano", output="hi", cost=0.01)
             s.emit_tool_call("delete")
         assert s.violation_count >= 2  # cost check fires on llm + tool events
 
@@ -156,7 +156,7 @@ class TestSessionEnforcement:
 class TestSessionSummary:
     def test_summary_generation(self, simple_contract):
         with simple_contract.session() as s:
-            s.emit_llm_response(model="gpt-4.1", output="hi", cost=0.003)
+            s.emit_llm_response(model="gpt-5.4-nano", output="hi", cost=0.003)
             s.emit_tool_call("search")
         summary = s.summary()
         assert summary.contract_name == "test_agent"
@@ -166,7 +166,7 @@ class TestSessionSummary:
 
     def test_summary_serialization(self, simple_contract):
         with simple_contract.session() as s:
-            s.emit_llm_response(model="gpt-4.1", output="hi", cost=0.003)
+            s.emit_llm_response(model="gpt-5.4-nano", output="hi", cost=0.003)
         summary = s.summary()
         d = summary.to_dict()
         assert d["contract_name"] == "test_agent"

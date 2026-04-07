@@ -65,22 +65,22 @@ class TestDriftBounds:
         c = Contract("test").require(drift_bounds(cost_pct=0.50), on_fail="log")
         with c.session() as s:
             for _ in range(5):
-                s.emit_llm_response(model="gpt", output="hi", cost=0.01)
+                s.emit_llm_response(model="gpt-5.4-nano", output="hi", cost=0.01)
         assert s.is_compliant
 
     def test_cost_spike_fails(self):
         c = Contract("test").require(drift_bounds(cost_pct=0.50), on_fail="log")
         with c.session() as s:
-            s.emit_llm_response(model="gpt", output="a", cost=0.01)
-            s.emit_llm_response(model="gpt", output="b", cost=0.01)
-            s.emit_llm_response(model="gpt", output="c", cost=0.01)
-            s.emit_llm_response(model="gpt", output="d", cost=0.10)  # 10x spike
+            s.emit_llm_response(model="gpt-5.4-nano", output="a", cost=0.01)
+            s.emit_llm_response(model="gpt-5.4-nano", output="b", cost=0.01)
+            s.emit_llm_response(model="gpt-5.4-nano", output="c", cost=0.01)
+            s.emit_llm_response(model="gpt-5.4-nano", output="d", cost=0.10)  # 10x spike
         assert not s.is_compliant
 
     def test_few_turns_passes(self):
         c = Contract("test").require(drift_bounds(cost_pct=0.10), on_fail="log")
         with c.session() as s:
-            s.emit_llm_response(model="gpt", output="a", cost=0.01)
+            s.emit_llm_response(model="gpt-5.4-nano", output="a", cost=0.01)
         assert s.is_compliant  # Too few turns to detect drift
 
 
@@ -88,20 +88,20 @@ class TestNoRepeatedOutput:
     def test_unique_outputs_pass(self):
         c = Contract("test").require(no_repeated_output(window=3), on_fail="log")
         with c.session() as s:
-            s.emit_llm_response(model="gpt", output="Hello")
-            s.emit_llm_response(model="gpt", output="World")
-            s.emit_llm_response(model="gpt", output="Foo")
+            s.emit_llm_response(model="gpt-5.4-nano", output="Hello")
+            s.emit_llm_response(model="gpt-5.4-nano", output="World")
+            s.emit_llm_response(model="gpt-5.4-nano", output="Foo")
         assert s.is_compliant
 
     def test_repeated_output_fails(self):
         c = Contract("test").require(no_repeated_output(window=3), on_fail="log")
         with c.session() as s:
-            s.emit_llm_response(model="gpt", output="Hello")
-            s.emit_llm_response(model="gpt", output="Hello")
+            s.emit_llm_response(model="gpt-5.4-nano", output="Hello")
+            s.emit_llm_response(model="gpt-5.4-nano", output="Hello")
         assert not s.is_compliant
 
     def test_single_output_passes(self):
         c = Contract("test").require(no_repeated_output(), on_fail="log")
         with c.session() as s:
-            s.emit_llm_response(model="gpt", output="Hello")
+            s.emit_llm_response(model="gpt-5.4-nano", output="Hello")
         assert s.is_compliant

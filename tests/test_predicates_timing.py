@@ -8,19 +8,19 @@ class TestMaxLatency:
     def test_passes_under_limit(self):
         c = Contract("test").require(max_latency(1000), on_fail="log")
         with c.session() as s:
-            s.emit_llm_response(model="gpt", output="hi", duration_ms=200)
+            s.emit_llm_response(model="gpt-5.4-nano", output="hi", duration_ms=200)
         assert s.is_compliant
 
     def test_fails_over_limit(self):
         c = Contract("test").require(max_latency(100), on_fail="log")
         with c.session() as s:
-            s.emit_llm_response(model="gpt", output="hi", duration_ms=500)
+            s.emit_llm_response(model="gpt-5.4-nano", output="hi", duration_ms=500)
         assert not s.is_compliant
 
     def test_zero_duration_passes(self):
         c = Contract("test").require(max_latency(100), on_fail="log")
         with c.session() as s:
-            s.emit_llm_response(model="gpt", output="hi", duration_ms=0)
+            s.emit_llm_response(model="gpt-5.4-nano", output="hi", duration_ms=0)
         assert s.is_compliant
 
 
