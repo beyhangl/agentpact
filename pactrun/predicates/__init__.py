@@ -6,11 +6,18 @@ from pactrun.predicates.base import predicate, get_predicate, list_predicates
 from pactrun.predicates.cost import cost_under, cost_per_turn_under, token_budget
 from pactrun.predicates.tools import (
     must_call, must_not_call, tool_order, tools_allowed, max_tool_calls,
+)
+from pactrun.predicates.tool_args import (
     tool_args_match, no_destructive_args, tool_path_within,
-    tool_arg_value_guard, required_disclosure, tool_host_within,
+    tool_arg_value_guard, required_disclosure,
+)
+from pactrun.predicates.network import tool_host_within
+from pactrun.predicates.consent import (
     consent_token_required, mint_consent_token,
-    no_exfiltration_after_untrusted, lethal_trifecta_guard,
     multi_party_approval_required, mint_approval_token,
+)
+from pactrun.predicates.exfil import (
+    no_exfiltration_after_untrusted, lethal_trifecta_guard,
 )
 from pactrun.predicates.output import (
     no_pii, output_contains, output_matches, max_output_length, output_must_not_contain,
@@ -31,13 +38,18 @@ __all__ = [
     "predicate", "get_predicate", "list_predicates",
     # Cost
     "cost_under", "cost_per_turn_under", "token_budget",
-    # Tools
+    # Tool-name policy
     "must_call", "must_not_call", "tool_order", "tools_allowed", "max_tool_calls",
+    # Tool args
     "tool_args_match", "no_destructive_args", "tool_path_within",
-    "tool_arg_value_guard", "required_disclosure", "tool_host_within",
+    "tool_arg_value_guard", "required_disclosure",
+    # Network egress
+    "tool_host_within",
+    # Consent / approval
     "consent_token_required", "mint_consent_token",
-    "no_exfiltration_after_untrusted", "lethal_trifecta_guard",
     "multi_party_approval_required", "mint_approval_token",
+    # Exfiltration / cross-run
+    "no_exfiltration_after_untrusted", "lethal_trifecta_guard",
     # Output
     "no_pii", "output_contains", "output_matches", "max_output_length", "output_must_not_contain",
     "valid_json", "json_schema_valid", "no_secrets", "tenant_response_isolation",
