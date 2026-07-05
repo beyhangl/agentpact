@@ -433,7 +433,7 @@ def no_exfil_links(
 
     Relative paths, anchors, ``mailto:``/``tel:``/``data:`` are ignored.
     """
-    from pactrun.predicates.tools import _extract_host, _host_matches, _is_private_host
+    from pactrun.predicates._neturl import _extract_host, _host_matches, _is_private_host
 
     forms = tuple(forms)
     bad = set(forms) - _VALID_EXFIL_FORMS

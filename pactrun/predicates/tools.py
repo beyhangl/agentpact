@@ -5,6 +5,9 @@ from __future__ import annotations
 from pactrun.core.enums import EventKind
 from pactrun.core.models import Event, PredicateResult, SessionState
 from pactrun.predicates.base import predicate
+from pactrun.predicates._argpath import _args_blob, _looks_like_path, _resolve_path, _value_in
+from pactrun.predicates._neturl import _extract_host, _host_matches, _is_private_host, _url_like
+from pactrun.predicates._signing import _action_sig, _approval_sig
 
 
 @predicate("must_call")
@@ -728,158 +731,6 @@ def multi_party_approval_required(
     return check
 
 
-def _args_blob(tool_args) -> str:
-    import json
-
-    if not tool_args:
-        return ""
-    try:
-        return json.dumps(tool_args, default=str)
-    except (TypeError, ValueError):
-        return str(tool_args)
-
-
-def _looks_like_path(value: str) -> bool:
-    return ("/" in value) or ("\\" in value) or value.startswith("~")
-
-
-def _resolve_path(obj, path: str):
-    """Walk a dotted path (dict keys + int list indices). Returns (found, value).
-
-    ``"recipient.email"`` descends dict keys; numeric segments index lists or
-    tuples (negative indices allowed). Returns ``(False, None)`` if any segment
-    is absent or the container type doesn't match.
-    """
-    cur = obj
-    for part in path.split("."):
-        if isinstance(cur, dict):
-            if part not in cur:
-                return False, None
-            cur = cur[part]
-        elif isinstance(cur, (list, tuple)):
-            try:
-                idx = int(part)
-            except ValueError:
-                return False, None
-            if -len(cur) <= idx < len(cur):
-                cur = cur[idx]
-            else:
-                return False, None
-        else:
-            return False, None
-    return True, cur
-
-
-def _value_in(value: str, entries: set, match: str) -> bool:
-    """True if ``value`` matches any of ``entries`` under the given match mode."""
-    if match == "exact":
-        return value in entries
-    if match == "ci":
-        v = value.casefold()
-        return any(v == e.casefold() for e in entries)
-    if match == "glob":
-        from fnmatch import fnmatch
-
-        return any(fnmatch(value, e) for e in entries)
-    if match == "regex":
-        import re
-
-        return any(re.search(e, value) for e in entries)
-    return False
-
-
-def _as_ip(host: str):
-    import ipaddress
-
-    try:
-        return ipaddress.ip_address(host)
-    except ValueError:
-        return None
-
-
-def _extract_host(value: str):
-    """Pull the host out of a URL or bare host[:port][/path]; lowercased, no brackets."""
-    from urllib.parse import urlsplit
-
-    v = value.strip()
-    if not v:
-        return None
-    try:
-        netloc_form = v if ("://" in v or v.startswith("//")) else "//" + v
-        host = urlsplit(netloc_form).hostname
-    except ValueError:
-        return None
-    return host.lower() if host else None
-
-
-def _url_like(value: str) -> bool:
-    """Heuristic: is this string worth treating as a URL/host for egress checks?"""
-    v = value.strip()
-    if not v or any(ch.isspace() for ch in v):
-        return False
-    if "://" in v:
-        return True
-    head = v.split("/")[0]
-    hostpart = head.rsplit(":", 1)[0].strip("[]")
-    if hostpart == "localhost":
-        return True
-    if _as_ip(hostpart) is not None:
-        return True
-    return ("." in hostpart) and all(ch.isalnum() or ch in ".-" for ch in hostpart)
-
-
-def _host_matches(host: str, patterns: list[str]) -> bool:
-    """True if host matches any glob host pattern or IP/CIDR in ``patterns``."""
-    import ipaddress
-    from fnmatch import fnmatch
-
-    host_ip = _as_ip(host)
-    for p in patterns:
-        pl = p.lower()
-        if host_ip is not None:
-            try:
-                net = ipaddress.ip_network(p, strict=False)
-            except ValueError:
-                net = None
-            if net is not None and host_ip.version == net.version and host_ip in net:
-                return True
-        if fnmatch(host, pl):
-            return True
-    return False
-
-
-def _is_private_host(host: str) -> bool:
-    """True for localhost or a private/loopback/link-local/reserved IP literal."""
-    if host == "localhost":
-        return True
-    ip = _as_ip(host)
-    if ip is None:
-        return False
-    return ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved
-
-
-def _canonical_action(action: str, tool_args, bind_args) -> str:
-    """Stable canonical string of (action, bound-arg values) for signing."""
-    import json
-
-    payload = {"action": action}
-    if bind_args:
-        payload["args"] = {k: _resolve_path(tool_args or {}, k)[1] for k in bind_args}
-    return json.dumps(payload, sort_keys=True, default=str)
-
-
-def _action_sig(action: str, tool_args, bind_args, secret) -> str:
-    """Signature binding a consent token to an action: HMAC if secret, else sha256."""
-    import hashlib
-    import hmac
-
-    msg = _canonical_action(action, tool_args, bind_args).encode("utf-8")
-    if secret:
-        key = secret if isinstance(secret, (bytes, bytearray)) else str(secret).encode("utf-8")
-        return hmac.new(key, msg, hashlib.sha256).hexdigest()
-    return hashlib.sha256(msg).hexdigest()
-
-
 def mint_consent_token(
     action: str,
     *,
@@ -902,22 +753,6 @@ def mint_consent_token(
         "sig": sig,
         "issued_at": time.time() if issued_at is None else issued_at,
     }
-
-
-def _approval_sig(approver: str, action: str, tool_args, bind_args, secret) -> str:
-    """Signature for an approval token, binding the approver id + action + args."""
-    import hashlib
-    import hmac
-    import json
-
-    payload = {"approver": approver, "action": action}
-    if bind_args:
-        payload["args"] = {k: _resolve_path(tool_args or {}, k)[1] for k in bind_args}
-    msg = json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
-    if secret:
-        key = secret if isinstance(secret, (bytes, bytearray)) else str(secret).encode("utf-8")
-        return hmac.new(key, msg, hashlib.sha256).hexdigest()
-    return hashlib.sha256(msg).hexdigest()
 
 
 def mint_approval_token(

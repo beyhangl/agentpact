@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 from pactrun.core.enums import EventKind
 from pactrun.core.models import Event, PredicateResult, SessionState
 from pactrun.predicates.base import predicate
-from pactrun.predicates.tools import _resolve_path
+from pactrun.predicates._argpath import _resolve_path
 
 
 def _window_events(state: SessionState, event: Event, window_s: float, kind: EventKind):
