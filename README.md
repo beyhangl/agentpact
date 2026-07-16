@@ -61,19 +61,20 @@ An agent can pass every per-message guardrail and still run up a $50 bill, loop 
 
 ## Status
 
-> **pactrun is alpha (v0.1.0).** This README documents only what actually ships today. The core below works and is covered by **520 passing tests**. A few capabilities that belong to the longer-term vision — compliance-document export, one more framework adapter, and formal composition — are **not built yet**; they live in the [Roadmap](#roadmap), not in the feature list.
+> **pactrun is alpha (v0.1.0).** This README documents only what actually ships today. The core below works and is covered by **598 passing tests**. A few capabilities that belong to the longer-term vision — compliance-document export, one more framework adapter, and formal composition — are **not built yet**; they live in the [Roadmap](#roadmap), not in the feature list.
 
 | Works today ✅ | Not built yet 🚧 (see Roadmap) |
 |---|---|
 | One-line `pactrun.wrap()` pre-call gate — real-tokenizer cost (tiktoken/litellm), **async + streaming** | EU AI Act / compliance document export |
 | Fluent `Contract` builder + YAML loader | Pre-call gate for Gemini / LiteLLM clients (today: OpenAI, Anthropic) |
 | Session-level runtime enforcement (sync + async) | Pydantic-AI adapter; native CrewAI tool events |
-| 43 built-in predicates (cost, tools, **tool-args**, output, **schema/secrets**, timing, behavioral, **rate-limit**, **flow**, **injection/exfil**) | Formal multi-agent composition |
+| 52 built-in predicates (cost, tools, **tool-args**, output, **schema/secrets**, timing, behavioral, **rate-limit**, **flow**, **injection/exfil**, **content-security**, **compliance**) | Formal multi-agent composition |
 | Recovery: log / warn / block / escalate / **approve** / retry / fallback | |
-| **Prompt-injection & exfiltration defense** — hidden-text scan, output link/image exfil guard, untrusted→exfil chain & lethal-trifecta tripwires | |
+| **Prompt-injection & exfiltration defense** — hidden-text scan, output link/image exfil guard, untrusted→exfil chain, taint-to-sink, injection-phrase & canary-leak tripwires | |
 | **Argument-level tool guards** — JSON-Schema match, destructive-command block, path-sandbox, **per-field value allow/deny**, **required disclosure** | |
 | **Egress / SSRF guard** — host allow/deny + CIDR + block-private (`tool_host_within`) | |
 | **Human-in-the-loop** — single consent tokens **and N-of-M dual-control quorum** (HMAC-signable) | |
+| **Reliability** — error-class retry budgets, idempotency, stall & redundant-read detection | |
 | **Tamper-evident audit log** — hash-chained JSONL ledger + offline `verify_audit_log()` | |
 | **Output integrity** — `valid_json` / `json_schema_valid` / `no_secrets` + **cross-tenant isolation** | |
 | **Rate & quota** — rolling spend/call/tool windows, **per-recipient buckets**, **calendar quotas** | |
@@ -328,7 +329,7 @@ contract = Contract("agent").require(cost_under(0.05), on_fail="escalate").on_es
 
 ## Built-in predicates
 
-All 43 ship today. Pass any of them to `.require(...)` / `.forbid(...)` (or reference them by name in YAML).
+All 52 ship today. Pass any of them to `.require(...)` / `.forbid(...)` (or reference them by name in YAML).
 
 | Group | Predicate | What it checks |
 |---|---|---|
@@ -350,8 +351,11 @@ All 43 ship today. Pass any of them to `.require(...)` / `.forbid(...)` (or refe
 | | `multi_party_approval_required(tools, n_required=2, approvers=, …)` | ≥ N distinct, signed, action-bound approver tokens (dual-control quorum) |
 | **Injection / exfil** | `no_exfiltration_after_untrusted(untrusted_tools, exfil_tools, …)` | blocks an outbound call that fires *after* untrusted content entered the run |
 | | `lethal_trifecta_guard(untrusted_sources, private_data_tools, egress_tools, …)` | fails a run that combines untrusted input + private data + external egress |
+| | `untrusted_taint_to_sink(sink_tools, taint_key=, min_overlap=24, …)` | blocks a sink call whose args echo ≥N chars of prior taint-tagged content |
 | | `no_invisible_text(scan, detect, …)` | flags zero-width / Unicode-Tags / bidi-override smuggled instructions |
 | | `no_exfil_links(allow_hosts=, block_images=True, …)` | output markdown/HTML links & images reach only allowed hosts (zero-click exfil) |
+| **Content security** | `no_injection_phrases(scan, decode=, min_confidence=, …)` | untrusted inbound text carries no known prompt-injection signatures (opt. base64/url decode) |
+| | `canary_not_leaked(token, transforms=…)` | a planted system-prompt canary never appears in output (verbatim/base64/reversed) |
 | **Output** | `no_pii()` | no email / SSN / phone / card number in output |
 | | `output_contains(substring, case_sensitive=True)` | final output contains a string |
 | | `output_matches(pattern)` | final output matches a regex |
@@ -369,12 +373,18 @@ All 43 ship today. Pass any of them to `.require(...)` / `.forbid(...)` (or refe
 | | `tool_rate_limit(tool, max_calls, per_seconds)` | one tool's invocation rate within a window stays under a cap |
 | | `per_key_rate_limit(tool, key_path, max_calls, per_seconds)` | independent rolling windows **per extracted arg value** (e.g. per recipient) |
 | | `tool_quota_per_period(tool, limit, period="month", …)` | calendar-anchored quota that **resets** on the day/week/month boundary |
+| | `approval_request_rate_under(max_per_window=5, window_s=300, …)` | approval-tagged events within a window stay under a cap (HITL-flooding guard) |
 | **Behavioral** | `no_loops(window=5, threshold=0.8)` | recent tool calls aren't a repeating loop |
 | | `max_retries(n, tool=None)` | no more than N consecutive identical tool calls |
 | | `drift_bounds(cost_pct=None, tokens_pct=None)` | per-turn metrics stay within N% of the session average |
 | | `no_repeated_output(window=3)` | agent doesn't repeat identical outputs |
 | | `tool_error_rate_under(max_rate=0.3, window=10, min_calls=3)` | rolling tool-failure fraction stays under a ceiling |
+| | `bounded_error_retries(max_transient=3, max_permanent=0, …)` | error-class-aware retry budget (permanent failures stop at 0) |
+| | `no_redundant_reads(tools, max_repeats=1, args_keys=None)` | the same read (tool + canonical args) isn't repeated past a threshold |
+| | `no_progress_stall(max_turns_without_progress=4, …)` | fails when no progress (success or new output) happens within a budget |
+| | `no_duplicate_side_effect(tool, key_fields=, retry_token_field=, …)` | idempotency — the same side-effect isn't performed twice (unless a retry token changes) |
 | **Flow** | `flow_progression(stages, mode="diagnostic"\|"gate", …)` | run reaches ordered milestones (drop-off report) or is gated against out-of-order phases |
+| **Compliance** | `ai_disclosure_in_output(must_contain, first_only=True, …)` | the first user-facing reply discloses it's AI (then latches) |
 
 Custom predicates are a small function — register one with `@predicate("my_check")` returning a `(event, state) -> PredicateResult` checker.
 
@@ -423,7 +433,7 @@ Installing pactrun adds a `pactrun` command:
 pactrun init --name support_agent      # scaffold contracts/support_agent.yaml
 pactrun validate contracts/            # validate one file or a whole directory
 pactrun show contracts/support_agent.yaml   # pretty-print a contract's clauses
-pactrun predicates                     # list the 43 built-in predicates
+pactrun predicates                     # list the 52 built-in predicates
 ```
 
 ```text
@@ -531,7 +541,7 @@ They share design patterns (`contextvars`-based session tracking, the same depen
 git clone https://github.com/beyhangl/pactrun
 cd agentpact
 pip install -e ".[dev]"
-pytest        # 520 tests
+pytest        # 598 tests
 ```
 
 PRs welcome — please open an issue first for significant changes.
