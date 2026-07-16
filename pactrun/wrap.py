@@ -44,6 +44,7 @@ from pactrun.predicates import (
     max_turns as max_turns_predicate,
     must_not_call,
     no_destructive_args,
+    no_duplicate_side_effect as no_duplicate_side_effect_predicate,
     no_loops as no_loops_predicate,
     spend_rate_under,
     tool_args_match,
@@ -74,6 +75,7 @@ def wrap(
     args_schema: dict | None = None,
     max_cost_per_min: float | None = None,
     tool_rate_limits: dict | None = None,
+    no_duplicate_side_effect: dict | None = None,
     on_violation: str = "block",
     default_max_tokens: int = 4096,
     escalation_handler: Any = None,
@@ -110,6 +112,8 @@ def wrap(
         contract.require(spend_rate_under(max_cost_per_min, 60))
     for tool_name, (n_calls, per_seconds) in (tool_rate_limits or {}).items():
         contract.require(tool_rate_limit(tool_name, n_calls, per_seconds))
+    for tool_name, key_fields in (no_duplicate_side_effect or {}).items():
+        contract.require(no_duplicate_side_effect_predicate(tool_name, key_fields=list(key_fields)))
 
     return GuardedClient(
         client,

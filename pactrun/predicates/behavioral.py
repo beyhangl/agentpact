@@ -346,3 +346,46 @@ def no_progress_stall(
         )
     check.predicate_name = "no_progress_stall"  # type: ignore[attr-defined]
     return check
+
+
+@predicate("no_duplicate_side_effect")
+def no_duplicate_side_effect(
+    tool: str,
+    key_fields=None,
+    ignore_fields=None,
+    retry_token_field=None,
+):
+    """Idempotency guard: block a repeated side-effect with the same identity.
+
+    Fingerprints each call to ``tool`` on ``(tool_name, canonical args)`` and
+    fails a later call carrying the same identity — a double-send / double-charge
+    guard. ``key_fields`` restricts identity to those argument keys (so
+    ``["to", "subject", "body"]`` treats a message as identical regardless of a
+    volatile id); ``ignore_fields`` drops keys from the default all-args identity.
+    ``retry_token_field`` is an escape hatch: changing that field's value marks
+    an intentional new attempt and is allowed through.
+    """
+    def _identity(e: Event) -> str:
+        base = _arg_fingerprint(e.tool_name, e.tool_args, key_fields=key_fields, ignore_fields=ignore_fields)
+        if retry_token_field:
+            token = (e.tool_args or {}).get(retry_token_field)
+            base = f"{base}\x00retry={token!r}"
+        return base
+
+    def check(event: Event, state: SessionState) -> PredicateResult:
+        if event.kind != EventKind.TOOL_CALL or event.tool_name != tool:
+            return PredicateResult(passed=True)
+        fp = _identity(event)
+        for e in state.events:
+            if e.id == event.id or e.kind != EventKind.TOOL_CALL or e.tool_name != tool:
+                continue
+            if _identity(e) == fp:
+                return PredicateResult(
+                    passed=False,
+                    expected=f"each '{tool}' side-effect happens at most once",
+                    actual="duplicate call",
+                    message=f"Duplicate side-effect: '{tool}' called again with the same identity",
+                )
+        return PredicateResult(passed=True)
+    check.predicate_name = "no_duplicate_side_effect"  # type: ignore[attr-defined]
+    return check
