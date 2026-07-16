@@ -30,6 +30,9 @@ from pactrun.predicates.behavioral import (
     bounded_error_retries, no_redundant_reads, no_progress_stall, no_duplicate_side_effect,
 )
 from pactrun.predicates.flow import flow_progression
+from pactrun.predicates.content_security import (
+    no_injection_phrases, canary_not_leaked, mint_canary,
+)
 from pactrun.predicates.ratelimit import (
     spend_rate_under, call_rate_under, tool_rate_limit,
     per_key_rate_limit, tool_quota_per_period,
@@ -62,6 +65,8 @@ __all__ = [
     "bounded_error_retries", "no_redundant_reads", "no_progress_stall", "no_duplicate_side_effect",
     # Flow
     "flow_progression",
+    # Content security
+    "no_injection_phrases", "canary_not_leaked", "mint_canary",
     # Rate limits
     "spend_rate_under", "call_rate_under", "tool_rate_limit",
     "per_key_rate_limit", "tool_quota_per_period",

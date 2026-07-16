@@ -35,6 +35,7 @@ from pactrun.predicates import (
     spend_rate_under, call_rate_under, tool_rate_limit,
     per_key_rate_limit, tool_quota_per_period,
     flow_progression,
+    no_injection_phrases, canary_not_leaked, mint_canary,
 )
 from pactrun.wrap import wrap
 
@@ -63,4 +64,5 @@ __all__ = [
     "spend_rate_under", "call_rate_under", "tool_rate_limit",
     "per_key_rate_limit", "tool_quota_per_period",
     "flow_progression",
+    "no_injection_phrases", "canary_not_leaked", "mint_canary",
 ]
