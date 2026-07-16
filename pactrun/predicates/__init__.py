@@ -17,8 +17,9 @@ from pactrun.predicates.consent import (
     multi_party_approval_required, mint_approval_token,
 )
 from pactrun.predicates.exfil import (
-    no_exfiltration_after_untrusted, lethal_trifecta_guard,
+    no_exfiltration_after_untrusted, lethal_trifecta_guard, untrusted_taint_to_sink,
 )
+from pactrun.predicates.compliance import ai_disclosure_in_output
 from pactrun.predicates.output import (
     no_pii, output_contains, output_matches, max_output_length, output_must_not_contain,
     valid_json, json_schema_valid, no_secrets, tenant_response_isolation,
@@ -35,7 +36,7 @@ from pactrun.predicates.content_security import (
 )
 from pactrun.predicates.ratelimit import (
     spend_rate_under, call_rate_under, tool_rate_limit,
-    per_key_rate_limit, tool_quota_per_period,
+    per_key_rate_limit, tool_quota_per_period, approval_request_rate_under,
 )
 
 __all__ = [
@@ -53,7 +54,9 @@ __all__ = [
     "consent_token_required", "mint_consent_token",
     "multi_party_approval_required", "mint_approval_token",
     # Exfiltration / cross-run
-    "no_exfiltration_after_untrusted", "lethal_trifecta_guard",
+    "no_exfiltration_after_untrusted", "lethal_trifecta_guard", "untrusted_taint_to_sink",
+    # Compliance
+    "ai_disclosure_in_output",
     # Output
     "no_pii", "output_contains", "output_matches", "max_output_length", "output_must_not_contain",
     "valid_json", "json_schema_valid", "no_secrets", "tenant_response_isolation",
@@ -69,5 +72,5 @@ __all__ = [
     "no_injection_phrases", "canary_not_leaked", "mint_canary",
     # Rate limits
     "spend_rate_under", "call_rate_under", "tool_rate_limit",
-    "per_key_rate_limit", "tool_quota_per_period",
+    "per_key_rate_limit", "tool_quota_per_period", "approval_request_rate_under",
 ]

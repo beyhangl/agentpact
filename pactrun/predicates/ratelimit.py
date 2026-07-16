@@ -210,3 +210,34 @@ def tool_quota_per_period(
         )
     check.predicate_name = "tool_quota_per_period"  # type: ignore[attr-defined]
     return check
+
+
+@predicate("approval_request_rate_under")
+def approval_request_rate_under(
+    max_per_window: int = 5,
+    window_s: float = 300.0,
+    approval_tag: str = "approval_request",
+):
+    """Approval-request rate within a rolling window must stay under a cap.
+
+    An approval-fatigue / human-in-the-loop-flooding guard: counts events the
+    host tagged ``metadata[approval_tag]`` within the last ``window_s`` seconds
+    (event-time) and fails when they exceed ``max_per_window``. A run that fires
+    a burst of approval prompts is a signal the agent is stuck or adversarial.
+    Only tagged events count — untagged runs never trip it, so it depends on the
+    caller tagging its approval requests.
+    """
+    def check(event: Event, state: SessionState) -> PredicateResult:
+        cutoff = event.timestamp - window_s
+        n = sum(
+            1 for e in state.events
+            if (e.metadata or {}).get(approval_tag) and cutoff <= e.timestamp <= event.timestamp
+        )
+        return PredicateResult(
+            passed=n <= max_per_window,
+            expected=f"<= {max_per_window} approval requests per {window_s:.0f}s",
+            actual=f"{n} in the last {window_s:.0f}s",
+            message=f"Approval-request rate {n}/{window_s:.0f}s exceeds {max_per_window}",
+        )
+    check.predicate_name = "approval_request_rate_under"  # type: ignore[attr-defined]
+    return check
