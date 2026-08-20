@@ -48,7 +48,8 @@ def consent_token_required(
     tools_set = {tools} if isinstance(tools, str) else set(tools)
 
     def check(event: Event, state: SessionState) -> PredicateResult:
-        if event.kind != EventKind.TOOL_CALL or event.tool_name not in tools_set:
+        tool_name = event.tool_name
+        if event.kind != EventKind.TOOL_CALL or tool_name is None or tool_name not in tools_set:
             return PredicateResult(passed=True)
         token = (event.metadata or {}).get(token_key)
         if token is None:
@@ -63,7 +64,7 @@ def consent_token_required(
 
         import hmac
 
-        expected = _action_sig(event.tool_name, event.tool_args, bind_args, secret)
+        expected = _action_sig(tool_name, event.tool_args, bind_args, secret)
         if not hmac.compare_digest(str(token.get("sig", "")), expected):
             return PredicateResult(
                 passed=False,
@@ -118,7 +119,8 @@ def multi_party_approval_required(
     approvers_set = set(approvers) if approvers else None
 
     def check(event: Event, state: SessionState) -> PredicateResult:
-        if event.kind != EventKind.TOOL_CALL or event.tool_name not in tools_set:
+        tool_name = event.tool_name
+        if event.kind != EventKind.TOOL_CALL or tool_name is None or tool_name not in tools_set:
             return PredicateResult(passed=True)
         raw = (event.metadata or {}).get(token_key)
         if raw is None:
@@ -142,7 +144,7 @@ def multi_party_approval_required(
                 continue
             if approvers_set is not None and approver not in approvers_set:
                 continue
-            expected = _approval_sig(approver, event.tool_name, event.tool_args, bind_args, secret)
+            expected = _approval_sig(approver, tool_name, event.tool_args, bind_args, secret)
             if not hmac.compare_digest(str(tok.get("sig", "")), expected):
                 continue
             if max_age_s is not None:
