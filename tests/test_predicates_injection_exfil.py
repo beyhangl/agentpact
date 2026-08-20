@@ -4,7 +4,6 @@ import pytest
 
 from pactrun import Contract, no_exfil_links, no_invisible_text
 
-
 # ---------------------------------------------------------------------------
 # no_invisible_text
 # ---------------------------------------------------------------------------

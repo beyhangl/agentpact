@@ -25,7 +25,7 @@ call :meth:`Digest.flush` explicitly at any time.
 from __future__ import annotations
 
 import logging
-from typing import Callable
+from collections.abc import Callable
 
 from pactrun.core.enums import OnFail, Severity
 from pactrun.core.models import Violation

@@ -111,7 +111,7 @@ def show(path: Path) -> None:
         contract = Contract.from_yaml(path)
     except ContractLoadError as exc:
         console.print(f"[red]✗ {path}[/red]: {exc}")
-        raise SystemExit(1)
+        raise SystemExit(1) from exc
 
     console.print(f"[bold]{contract.name}[/bold]  v{contract.version}")
     if contract.description:

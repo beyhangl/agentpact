@@ -1,9 +1,7 @@
 """Tests for change-point detectors."""
 
-import math
-import pytest
 
-from pactrun.drift.detectors import PageHinkleyDetector, EWMADetector
+from pactrun.drift.detectors import EWMADetector, PageHinkleyDetector
 
 
 class TestPageHinkley:

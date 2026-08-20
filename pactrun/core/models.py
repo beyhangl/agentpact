@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import time
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
 from pactrun.core.enums import ClauseKind, EventKind, OnFail, Severity
-
 
 # ---------------------------------------------------------------------------
 # Event — something that happened during an agent session

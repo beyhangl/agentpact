@@ -1,7 +1,6 @@
 """Tests for behavioral predicates."""
 
-import pytest
-from pactrun import Contract, no_loops, max_retries, drift_bounds, no_repeated_output
+from pactrun import Contract, drift_bounds, max_retries, no_loops, no_repeated_output
 
 
 class TestNoLoops:

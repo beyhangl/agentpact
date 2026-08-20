@@ -19,12 +19,16 @@ Usage::
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from pactrun.core.enums import ClauseKind, OnFail, Severity
 from pactrun.core.models import Clause, Event, PredicateResult, SessionState
+
+if TYPE_CHECKING:  # imported lazily at call time to avoid a circular import
+    from pactrun.session import Session
 
 
 @dataclass
@@ -210,7 +214,7 @@ class Contract:
 
     # -- Session factory ---------------------------------------------------
 
-    def session(self, **kwargs: Any) -> "Session":
+    def session(self, **kwargs: Any) -> Session:
         """Create an enforcement session for this contract."""
         from pactrun.session import Session
         return Session(self, **kwargs)

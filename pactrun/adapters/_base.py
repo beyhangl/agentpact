@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pactrun.session import get_active_session, Session
+from pactrun.session import Session, get_active_session
 
 
 def get_session() -> Session | None:

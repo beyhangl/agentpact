@@ -7,6 +7,8 @@ change without notice.
 
 from __future__ import annotations
 
+from typing import Any
+
 from pactrun.predicates._argpath import _resolve_path
 
 
@@ -14,7 +16,7 @@ def _canonical_action(action: str, tool_args, bind_args) -> str:
     """Stable canonical string of (action, bound-arg values) for signing."""
     import json
 
-    payload = {"action": action}
+    payload: dict[str, Any] = {"action": action}
     if bind_args:
         payload["args"] = {k: _resolve_path(tool_args or {}, k)[1] for k in bind_args}
     return json.dumps(payload, sort_keys=True, default=str)
@@ -38,7 +40,7 @@ def _approval_sig(approver: str, action: str, tool_args, bind_args, secret) -> s
     import hmac
     import json
 
-    payload = {"approver": approver, "action": action}
+    payload: dict[str, Any] = {"approver": approver, "action": action}
     if bind_args:
         payload["args"] = {k: _resolve_path(tool_args or {}, k)[1] for k in bind_args}
     msg = json.dumps(payload, sort_keys=True, default=str).encode("utf-8")

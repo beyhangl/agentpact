@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from pactrun.core.enums import EventKind
 from pactrun.core.models import Event, PredicateResult, SessionState
-from pactrun.predicates.base import predicate
 from pactrun.predicates._argpath import _args_blob
+from pactrun.predicates.base import predicate
 
 
 def _name_matches(name, patterns) -> bool:
@@ -120,7 +120,7 @@ def no_exfiltration_after_untrusted(
             import re
 
             blob = _args_blob(event.tool_args)
-            if re.search(r"[A-Za-z0-9+/=_\-]{%d,}" % int(encoded_arg_min_len), blob):
+            if re.search(rf"[A-Za-z0-9+/=_\-]{{{int(encoded_arg_min_len)},}}", blob):
                 return True
         return False
 

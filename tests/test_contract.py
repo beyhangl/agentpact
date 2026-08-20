@@ -1,9 +1,8 @@
 """Tests for pactrun Contract builder."""
 
 import json
-import pytest
 
-from pactrun import Contract, ClauseKind, OnFail, Severity, PredicateResult
+from pactrun import ClauseKind, Contract, OnFail, PredicateResult, Severity
 
 
 def _always_pass(event, state):

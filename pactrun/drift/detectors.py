@@ -7,8 +7,6 @@ Two detectors are provided:
 
 from __future__ import annotations
 
-import math
-
 
 class PageHinkleyDetector:
     """Page-Hinkley test for online change-point detection.

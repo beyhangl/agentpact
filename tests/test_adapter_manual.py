@@ -1,8 +1,7 @@
 """Tests for manual instrumentation adapter."""
 
-import pytest
 
-from pactrun import Contract, cost_under, must_not_call, ViolationError
+from pactrun import Contract, cost_under, must_not_call
 from pactrun.adapters.manual import emit_llm_call, emit_tool_call
 
 

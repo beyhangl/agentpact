@@ -19,7 +19,7 @@ import time
 import uuid
 from typing import Any
 
-from pactrun.core.enums import ClauseKind, EventKind, Severity
+from pactrun.core.enums import EventKind, Severity
 from pactrun.core.models import (
     Clause,
     Event,
@@ -30,14 +30,13 @@ from pactrun.core.models import (
 )
 from pactrun.recovery.engine import apply_recovery
 
-
 # Context variable for the active session
-_active_session: contextvars.ContextVar["Session | None"] = contextvars.ContextVar(
+_active_session: contextvars.ContextVar[Session | None] = contextvars.ContextVar(
     "pactrun_session", default=None
 )
 
 
-def get_active_session() -> "Session | None":
+def get_active_session() -> Session | None:
     """Get the currently active enforcement session, if any."""
     return _active_session.get()
 

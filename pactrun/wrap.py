@@ -36,19 +36,26 @@ from typing import Any
 
 from pactrun.contract import Contract
 from pactrun.core.enums import ClauseKind, OnFail, Severity
-from pactrun.core.errors import ViolationError
 from pactrun.core.models import Violation
 from pactrun.predicates import (
     cost_under,
     drift_bounds,
-    max_turns as max_turns_predicate,
     must_not_call,
     no_destructive_args,
-    no_duplicate_side_effect as no_duplicate_side_effect_predicate,
-    no_loops as no_loops_predicate,
     spend_rate_under,
     tool_args_match,
     tool_rate_limit,
+)
+from pactrun.predicates import (
+    max_turns as max_turns_predicate,
+)
+from pactrun.predicates import (
+    no_duplicate_side_effect as no_duplicate_side_effect_predicate,
+)
+from pactrun.predicates import (
+    no_loops as no_loops_predicate,
+)
+from pactrun.predicates import (
     tools_allowed as tools_allowed_predicate,
 )
 from pactrun.recovery.engine import apply_recovery
@@ -80,7 +87,7 @@ def wrap(
     default_max_tokens: int = 4096,
     escalation_handler: Any = None,
     approval_handler: Any = None,
-) -> "GuardedClient":
+) -> GuardedClient:
     """Wrap an OpenAI/Anthropic client with a pre-call enforcement gate.
 
     Returns a drop-in client proxy: call it exactly as you would the original
@@ -181,13 +188,13 @@ class GuardedClient:
         """The underlying enforcement Session (for summaries / violations)."""
         return self._session
 
-    def __enter__(self) -> "GuardedClient":
+    def __enter__(self) -> GuardedClient:
         return self
 
     def __exit__(self, *exc: Any) -> None:
         return None
 
-    async def __aenter__(self) -> "GuardedClient":
+    async def __aenter__(self) -> GuardedClient:
         return self
 
     async def __aexit__(self, *exc: Any) -> None:
@@ -264,7 +271,7 @@ class GuardedStream:
     recorded from the worst-case estimate rather than real usage.
     """
 
-    def __init__(self, stream: Any, owner: "GuardedClient", kwargs: dict) -> None:
+    def __init__(self, stream: Any, owner: GuardedClient, kwargs: dict) -> None:
         self._stream = stream
         self._owner = owner
         self._session = owner._session
@@ -279,7 +286,7 @@ class GuardedStream:
 
     # -- sync iteration / context manager ----------------------------------
 
-    def __iter__(self) -> "GuardedStream":
+    def __iter__(self) -> GuardedStream:
         return self
 
     def __next__(self) -> Any:
@@ -291,7 +298,7 @@ class GuardedStream:
         self._on_chunk(chunk)
         return chunk
 
-    def __enter__(self) -> "GuardedStream":
+    def __enter__(self) -> GuardedStream:
         enter = getattr(self._stream, "__enter__", None)
         if enter:
             enter()
@@ -310,7 +317,7 @@ class GuardedStream:
 
     # -- async iteration / context manager ---------------------------------
 
-    def __aiter__(self) -> "GuardedStream":
+    def __aiter__(self) -> GuardedStream:
         return self
 
     async def __anext__(self) -> Any:
@@ -322,7 +329,7 @@ class GuardedStream:
         self._on_chunk(chunk)
         return chunk
 
-    async def __aenter__(self) -> "GuardedStream":
+    async def __aenter__(self) -> GuardedStream:
         enter = getattr(self._stream, "__aenter__", None)
         if enter:
             await enter()

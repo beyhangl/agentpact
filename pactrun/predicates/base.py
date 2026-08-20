@@ -18,10 +18,9 @@ Usage::
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Callable
 
 from pactrun.core.models import Event, PredicateResult, SessionState
-
 
 # Global registry: name → factory function
 _PREDICATE_REGISTRY: dict[str, Callable[..., Callable[[Event, SessionState], PredicateResult]]] = {}

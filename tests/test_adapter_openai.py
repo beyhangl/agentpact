@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import sys
 from types import ModuleType
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
-from pactrun import Contract, cost_under, must_not_call
+from pactrun import Contract, cost_under
 from pactrun.adapters.openai import OpenAIAdapter
 
 

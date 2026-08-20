@@ -9,16 +9,14 @@ ever be called. These tests exercise the real ``.require()`` and loader paths
 (not the ``.postcondition()`` workaround the older tests used) to guard the fix.
 """
 
-import pytest
 
 from pactrun import (
     Contract,
-    ViolationError,
     must_call,
-    tool_order,
-    output_contains,
-    tools_allowed,
     must_not_call,
+    output_contains,
+    tool_order,
+    tools_allowed,
 )
 
 

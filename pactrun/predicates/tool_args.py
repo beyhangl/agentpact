@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from pactrun.core.enums import EventKind
 from pactrun.core.models import Event, PredicateResult, SessionState
-from pactrun.predicates.base import predicate
 from pactrun.predicates._argpath import _args_blob, _looks_like_path, _resolve_path, _value_in
+from pactrun.predicates.base import predicate
 
 
 @predicate("tool_args_match")
@@ -197,7 +197,8 @@ def tool_arg_value_guard(
             return PredicateResult(passed=True)
 
         found, value = _resolve_path(event.tool_args or {}, field)
-        norm_value = _norm(value) if found else None
+        # Sentinel is never compared: every use below is guarded by `found`.
+        norm_value = _norm(value) if found else ""
 
         if allow is not None:
             if not found:

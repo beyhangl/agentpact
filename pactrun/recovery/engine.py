@@ -34,7 +34,7 @@ from __future__ import annotations
 
 import logging
 import warnings
-from typing import Callable
+from collections.abc import Callable
 
 from pactrun.core.enums import OnFail
 from pactrun.core.errors import ViolationError

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 import yaml
 
@@ -12,10 +12,12 @@ from pactrun.core.errors import ContractLoadError
 from pactrun.core.models import Clause
 from pactrun.predicates.base import get_predicate
 
-
-def load_contract_yaml(path: str | Path) -> "Contract":
-    """Load a Contract from a YAML file."""
+if TYPE_CHECKING:  # imported lazily at call time to avoid a circular import
     from pactrun.contract import Contract
+
+
+def load_contract_yaml(path: str | Path) -> Contract:
+    """Load a Contract from a YAML file."""
 
     path = Path(path)
     if not path.exists():
@@ -33,7 +35,7 @@ def load_contract_yaml(path: str | Path) -> "Contract":
     return load_contract_dict(data)
 
 
-def load_contract_dict(data: dict) -> "Contract":
+def load_contract_dict(data: dict) -> Contract:
     """Load a Contract from a dictionary."""
     from pactrun.contract import Contract
 

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pactrun.core.enums import EventKind
 from pactrun.core.models import Event, PredicateResult, SessionState
-from pactrun.predicates.base import predicate
 from pactrun.predicates._neturl import _extract_host, _host_matches, _is_private_host, _url_like
+from pactrun.predicates.base import predicate
 
 
 @predicate("tool_host_within")

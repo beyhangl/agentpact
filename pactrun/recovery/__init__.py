@@ -1,5 +1,7 @@
 """Recovery — route contract violations to log / warn / block / escalate / retry / fallback."""
 
+from pactrun.recovery.approval import auto_approver, cli_approver
+from pactrun.recovery.digest import Digest, digest
 from pactrun.recovery.engine import (
     EscalationError,
     FallbackSignal,
@@ -7,8 +9,6 @@ from pactrun.recovery.engine import (
     apply_recovery,
 )
 from pactrun.recovery.webhook import webhook_handler
-from pactrun.recovery.approval import cli_approver, auto_approver
-from pactrun.recovery.digest import digest, Digest
 
 __all__ = [
     "apply_recovery",

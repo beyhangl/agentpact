@@ -1,10 +1,13 @@
 """Tests for pactrun core data models."""
 
-import pytest
 
-from pactrun.core.enums import ClauseKind, EventKind, OnFail, Severity
+from pactrun.core.enums import EventKind, Severity
 from pactrun.core.models import (
-    Clause, Event, PredicateResult, SessionState, SessionSummary, Violation,
+    Event,
+    PredicateResult,
+    SessionState,
+    SessionSummary,
+    Violation,
 )
 
 

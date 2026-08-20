@@ -3,7 +3,6 @@
 import pytest
 
 from pactrun import Contract, EventKind, flow_progression
-from pactrun.core.models import Event
 
 
 def _run(pred, calls, on_fail="log"):

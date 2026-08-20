@@ -34,14 +34,14 @@ class GeminiAdapter:
         self._original_async: Any = None
         self._patched = False
 
-    def __enter__(self) -> "GeminiAdapter":
+    def __enter__(self) -> GeminiAdapter:
         self._patch()
         return self
 
     def __exit__(self, *exc: Any) -> None:
         self._unpatch()
 
-    async def __aenter__(self) -> "GeminiAdapter":
+    async def __aenter__(self) -> GeminiAdapter:
         self._patch()
         return self
 

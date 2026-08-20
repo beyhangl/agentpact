@@ -5,10 +5,8 @@ from __future__ import annotations
 import json
 import re
 
-from pactrun.core.enums import EventKind
 from pactrun.core.models import Event, PredicateResult, SessionState
 from pactrun.predicates.base import predicate
-
 
 _PII_PATTERNS = [
     (r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "email"),

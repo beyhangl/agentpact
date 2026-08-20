@@ -2,7 +2,7 @@
 
 import pytest
 
-from pactrun import Contract, Event, EventKind, PredicateResult, SessionState
+from pactrun import Contract, Event, EventKind, PredicateResult
 
 
 @pytest.fixture

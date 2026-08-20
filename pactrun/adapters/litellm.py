@@ -41,14 +41,14 @@ class LiteLLMAdapter:
         self._original_async: Any = None
         self._patched = False
 
-    def __enter__(self) -> "LiteLLMAdapter":
+    def __enter__(self) -> LiteLLMAdapter:
         self._patch()
         return self
 
     def __exit__(self, *exc: Any) -> None:
         self._unpatch()
 
-    async def __aenter__(self) -> "LiteLLMAdapter":
+    async def __aenter__(self) -> LiteLLMAdapter:
         self._patch()
         return self
 

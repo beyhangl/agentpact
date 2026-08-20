@@ -22,14 +22,14 @@ class AnthropicAdapter:
         self._original_async: Any = None
         self._patched = False
 
-    def __enter__(self) -> "AnthropicAdapter":
+    def __enter__(self) -> AnthropicAdapter:
         self._patch()
         return self
 
     def __exit__(self, *exc: Any) -> None:
         self._unpatch()
 
-    async def __aenter__(self) -> "AnthropicAdapter":
+    async def __aenter__(self) -> AnthropicAdapter:
         self._patch()
         return self
 

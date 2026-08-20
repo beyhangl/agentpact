@@ -3,7 +3,7 @@
 import pytest
 
 from pactrun import Contract, ContractLoadError, PredicateResult
-from pactrun.predicates.base import predicate, _PREDICATE_REGISTRY
+from pactrun.predicates.base import predicate
 
 
 # Register a test predicate

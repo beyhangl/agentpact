@@ -3,9 +3,12 @@
 import pytest
 
 from pactrun import (
-    Contract, Event, EventKind, OnFail, PredicateResult, Severity, ViolationError,
+    Contract,
+    EventKind,
+    PredicateResult,
+    ViolationError,
 )
-from pactrun.session import Session, get_active_session
+from pactrun.session import get_active_session
 
 
 def _cost_check(max_usd):

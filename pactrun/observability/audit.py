@@ -73,7 +73,7 @@ class AuditLogObserver:
         """Resume the chain from the last record of an existing file."""
         last = ""
         try:
-            with open(self.path, "r", encoding="utf-8") as f:
+            with open(self.path, encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
                     if line:
@@ -148,7 +148,7 @@ def verify_audit_log(path, secret=None) -> AuditReport:
     """
     records = []
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:

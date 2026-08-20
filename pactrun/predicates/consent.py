@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from pactrun.core.enums import EventKind
 from pactrun.core.models import Event, PredicateResult, SessionState
-from pactrun.predicates.base import predicate
 from pactrun.predicates._signing import _action_sig, _approval_sig
+from pactrun.predicates.base import predicate
 
 
 @predicate("consent_token_required")

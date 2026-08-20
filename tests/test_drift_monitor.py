@@ -1,6 +1,5 @@
 """Tests for DriftMonitor."""
 
-import pytest
 
 from pactrun.drift import DriftMonitor, DriftReport
 

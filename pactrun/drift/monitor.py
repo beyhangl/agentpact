@@ -24,7 +24,6 @@ from __future__ import annotations
 from pactrun.drift.detectors import EWMADetector, PageHinkleyDetector
 from pactrun.drift.metrics import DriftMetric, DriftReport
 
-
 _DEFAULT_METRICS = [
     "cost_per_turn",
     "tokens_per_turn",

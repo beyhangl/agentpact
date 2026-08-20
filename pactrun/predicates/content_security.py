@@ -8,7 +8,6 @@ tripwires, not guarantees — pair with consent gating and sandboxing.
 
 from __future__ import annotations
 
-from pactrun.core.enums import EventKind
 from pactrun.core.models import Event, PredicateResult, SessionState
 from pactrun.predicates.base import predicate
 

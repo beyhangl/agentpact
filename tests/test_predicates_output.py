@@ -1,7 +1,13 @@
 """Tests for output predicates."""
 
-import pytest
-from pactrun import Contract, no_pii, output_contains, output_matches, max_output_length, output_must_not_contain
+from pactrun import (
+    Contract,
+    max_output_length,
+    no_pii,
+    output_contains,
+    output_matches,
+    output_must_not_contain,
+)
 
 
 class TestNoPii:

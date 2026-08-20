@@ -4,7 +4,6 @@ import pytest
 
 from pactrun import Contract, cost_under
 
-
 # --- dogfood: a real @contracted test in this very suite -------------------
 _budget = Contract("dogfood").require(cost_under(1.0), on_fail="log")
 

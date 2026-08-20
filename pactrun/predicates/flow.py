@@ -66,14 +66,16 @@ def flow_progression(
     if mode not in ("diagnostic", "gate"):
         raise ValueError(f"flow_progression: mode must be diagnostic/gate, got {mode!r}")
     n = len(stages)
-    terminal_idx = (n - 1) if terminal is None else None
-    if terminal is not None:
-        for i, s in enumerate(stages):
-            if s == terminal or _stage_label(s) == _stage_label(terminal):
-                terminal_idx = i
-                break
-        if terminal_idx is None:
+    if terminal is None:
+        terminal_idx = n - 1
+    else:
+        matches = [
+            i for i, s in enumerate(stages)
+            if s == terminal or _stage_label(s) == _stage_label(terminal)
+        ]
+        if not matches:
             raise ValueError("flow_progression: terminal must be one of stages")
+        terminal_idx = matches[0]
     term_label = _stage_label(stages[terminal_idx])
     ledger_key = f"_flow_progression_{uuid.uuid4().hex[:8]}"
 

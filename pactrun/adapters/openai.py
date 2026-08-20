@@ -35,14 +35,14 @@ class OpenAIAdapter:
         self._original_async: Any = None
         self._patched = False
 
-    def __enter__(self) -> "OpenAIAdapter":
+    def __enter__(self) -> OpenAIAdapter:
         self._patch()
         return self
 
     def __exit__(self, *exc: Any) -> None:
         self._unpatch()
 
-    async def __aenter__(self) -> "OpenAIAdapter":
+    async def __aenter__(self) -> OpenAIAdapter:
         self._patch()
         return self
 

@@ -5,7 +5,7 @@
 
 [![Tests](https://github.com/beyhangl/pactrun/actions/workflows/test.yml/badge.svg)](https://github.com/beyhangl/pactrun/actions/workflows/test.yml)
 [![License](https://img.shields.io/github/license/beyhangl/pactrun)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.9+-blue)](https://github.com/beyhangl/pactrun)
+[![Python](https://img.shields.io/badge/python-3.10+-blue)](https://github.com/beyhangl/pactrun)
 [![Status](https://img.shields.io/badge/status-alpha-orange)](#status)
 
 ---
