@@ -13,7 +13,7 @@ from pactrun.predicates._argpath import _args_blob, _looks_like_path, _resolve_p
 from pactrun.predicates.base import predicate
 
 
-@predicate("tool_args_match")
+@predicate("tool_args_match", owasp=("ASI02",))
 def tool_args_match(tool: str | None, schema: dict):
     """A tool call's arguments must validate against a JSON Schema.
 
@@ -63,7 +63,7 @@ _DESTRUCTIVE_PATTERNS: list[tuple[str, str]] = [
 ]
 
 
-@predicate("no_destructive_args")
+@predicate("no_destructive_args", owasp=("ASI02", "ASI05",))
 def no_destructive_args(tool: str | None = None, extra: list[str] | None = None):
     """A tool call's arguments must not contain dangerous values.
 
@@ -98,7 +98,7 @@ def no_destructive_args(tool: str | None = None, extra: list[str] | None = None)
     return check
 
 
-@predicate("tool_path_within")
+@predicate("tool_path_within", owasp=("ASI02", "ASI05",))
 def tool_path_within(root: str, tool: str | None = None, arg_keys: list[str] | None = None):
     """Every path-like tool argument must resolve inside an allowed root.
 
@@ -140,7 +140,7 @@ def tool_path_within(root: str, tool: str | None = None, arg_keys: list[str] | N
     return check
 
 
-@predicate("tool_arg_value_guard")
+@predicate("tool_arg_value_guard", owasp=("ASI02",))
 def tool_arg_value_guard(
     tool: str | None,
     field: str,
@@ -246,7 +246,7 @@ def tool_arg_value_guard(
     return check
 
 
-@predicate("required_disclosure")
+@predicate("required_disclosure", owasp=("ASI09",))
 def required_disclosure(
     tool: str | None,
     arg: str,

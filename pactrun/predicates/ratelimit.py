@@ -33,7 +33,7 @@ def _scalar_key(value) -> str:
     return json.dumps(value, sort_keys=True, default=str)
 
 
-@predicate("spend_rate_under")
+@predicate("spend_rate_under", owasp=("ASI08",))
 def spend_rate_under(max_usd: float, window_s: float):
     """LLM spend within a rolling time window must stay under a cap."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -48,7 +48,7 @@ def spend_rate_under(max_usd: float, window_s: float):
     return check
 
 
-@predicate("call_rate_under")
+@predicate("call_rate_under", owasp=("ASI08",))
 def call_rate_under(max_calls: int, window_s: float):
     """LLM-call count within a rolling time window must stay under a cap."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -63,7 +63,7 @@ def call_rate_under(max_calls: int, window_s: float):
     return check
 
 
-@predicate("tool_rate_limit")
+@predicate("tool_rate_limit", owasp=("ASI02", "ASI08",))
 def tool_rate_limit(tool: str, max_calls: int, per_seconds: float):
     """One tool's invocation rate within a rolling window must stay under a cap."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -83,7 +83,7 @@ def tool_rate_limit(tool: str, max_calls: int, per_seconds: float):
     return check
 
 
-@predicate("per_key_rate_limit")
+@predicate("per_key_rate_limit", owasp=("ASI02", "ASI08",))
 def per_key_rate_limit(
     tool: str,
     key_path: str,
@@ -151,7 +151,7 @@ def _resolve_tz(tz: str):
     return ZoneInfo(tz)
 
 
-@predicate("tool_quota_per_period")
+@predicate("tool_quota_per_period", owasp=("ASI02", "ASI08",))
 def tool_quota_per_period(
     tool: str,
     limit: int,
@@ -212,7 +212,7 @@ def tool_quota_per_period(
     return check
 
 
-@predicate("approval_request_rate_under")
+@predicate("approval_request_rate_under", owasp=("ASI09",))
 def approval_request_rate_under(
     max_per_window: int = 5,
     window_s: float = 300.0,

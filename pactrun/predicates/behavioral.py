@@ -7,7 +7,7 @@ from pactrun.core.models import Event, PredicateResult, SessionState
 from pactrun.predicates.base import predicate
 
 
-@predicate("no_loops")
+@predicate("no_loops", owasp=("ASI08",))
 def no_loops(window: int = 5, threshold: float = 0.8):
     """Detect repetitive tool call patterns (probable infinite loops).
 
@@ -33,7 +33,7 @@ def no_loops(window: int = 5, threshold: float = 0.8):
     return check
 
 
-@predicate("max_retries")
+@predicate("max_retries", owasp=("ASI08",))
 def max_retries(n: int, tool: str | None = None):
     """Max N consecutive calls to the same tool (or a specific tool)."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -63,7 +63,7 @@ def max_retries(n: int, tool: str | None = None):
     return check
 
 
-@predicate("drift_bounds")
+@predicate("drift_bounds", owasp=("ASI01", "ASI08",))
 def drift_bounds(cost_pct: float | None = None, tokens_pct: float | None = None):
     """Per-turn metrics must stay within N% of session average.
 
@@ -103,7 +103,7 @@ def drift_bounds(cost_pct: float | None = None, tokens_pct: float | None = None)
     return check
 
 
-@predicate("no_repeated_output")
+@predicate("no_repeated_output", owasp=("ASI08",))
 def no_repeated_output(window: int = 3):
     """Agent must not produce identical outputs across recent turns."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -133,7 +133,7 @@ def _is_tool_error(e: Event) -> bool:
     return False
 
 
-@predicate("tool_error_rate_under")
+@predicate("tool_error_rate_under", owasp=("ASI08",))
 def tool_error_rate_under(max_rate: float = 0.3, window: int = 10, min_calls: int = 3):
     """Rolling tool-failure fraction must stay under a ceiling.
 
@@ -184,7 +184,7 @@ def _arg_fingerprint(tool_name, tool_args, key_fields=None, ignore_fields=None) 
     return f"{tool_name}\x00{blob}"
 
 
-@predicate("bounded_error_retries")
+@predicate("bounded_error_retries", owasp=("ASI08",))
 def bounded_error_retries(
     max_transient: int = 3,
     max_permanent: int = 0,
@@ -249,7 +249,7 @@ def bounded_error_retries(
     return check
 
 
-@predicate("no_redundant_reads")
+@predicate("no_redundant_reads", owasp=("ASI08",))
 def no_redundant_reads(tools=("read_file", "search"), max_repeats: int = 1, args_keys=None):
     """Flag the same read repeated past a threshold (wasted tokens/latency).
 
@@ -280,7 +280,7 @@ def no_redundant_reads(tools=("read_file", "search"), max_repeats: int = 1, args
     return check
 
 
-@predicate("no_progress_stall")
+@predicate("no_progress_stall", owasp=("ASI08",))
 def no_progress_stall(
     max_turns_without_progress: int = 4,
     max_ms_without_progress: float = 120000,
@@ -348,7 +348,7 @@ def no_progress_stall(
     return check
 
 
-@predicate("no_duplicate_side_effect")
+@predicate("no_duplicate_side_effect", owasp=("ASI02", "ASI08",))
 def no_duplicate_side_effect(
     tool: str,
     key_fields=None,

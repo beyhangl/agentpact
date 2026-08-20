@@ -133,12 +133,37 @@ def show(path: Path) -> None:
 
 
 @cli.command()
-def predicates() -> None:
+@click.option("--owasp", is_flag=True, help="Group by OWASP Agentic Top-10 risk instead.")
+def predicates(owasp: bool = False) -> None:
     """List the built-in predicates available in contracts."""
+    from pactrun.predicates.base import OWASP_AGENTIC_2026, owasp_coverage, predicate_owasp
+
     names = list_predicates()
+    if owasp:
+        coverage = owasp_coverage()
+        covered = sum(1 for ids in coverage.values() if ids)
+        console.print(
+            f"[bold]OWASP Top 10 for Agentic Applications (2026) — "
+            f"runtime controls for {covered}/10 risks[/bold]\n"
+        )
+        for rid, title in OWASP_AGENTIC_2026.items():
+            preds = coverage[rid]
+            if preds:
+                console.print(f"[bold]{rid}[/bold] {title} [dim]({len(preds)})[/dim]")
+                console.print(f"  [dim]{', '.join(preds)}[/dim]")
+            else:
+                console.print(f"[bold]{rid}[/bold] {title} [dim]— no runtime control[/dim]")
+        console.print(
+            "\n[dim]A tag means the predicate provides a partial runtime control, "
+            "not certified coverage.[/dim]"
+        )
+        return
+
     console.print(f"[bold]{len(names)} built-in predicates:[/bold]")
     for name in names:
-        console.print(f"  • {name}")
+        ids = predicate_owasp(name)
+        suffix = f"  [dim]{' '.join(ids)}[/dim]" if ids else ""
+        console.print(f"  • {name}{suffix}")
 
 
 if __name__ == "__main__":

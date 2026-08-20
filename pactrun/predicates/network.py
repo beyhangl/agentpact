@@ -8,7 +8,7 @@ from pactrun.predicates._neturl import _extract_host, _host_matches, _is_private
 from pactrun.predicates.base import predicate
 
 
-@predicate("tool_host_within")
+@predicate("tool_host_within", owasp=("ASI02", "ASI07",))
 def tool_host_within(
     allow: list[str] | None = None,
     deny: list[str] | None = None,

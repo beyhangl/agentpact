@@ -41,7 +41,7 @@ def _matches(stage, event: Event, match) -> bool:
     return False
 
 
-@predicate("flow_progression")
+@predicate("flow_progression", owasp=("ASI01",))
 def flow_progression(
     stages: list,
     mode: str = "diagnostic",

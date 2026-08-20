@@ -6,7 +6,7 @@ from pactrun.core.models import Event, PredicateResult, SessionState
 from pactrun.predicates.base import predicate
 
 
-@predicate("cost_under")
+@predicate("cost_under", owasp=("ASI08",))
 def cost_under(max_usd: float):
     """Session total cost must stay under budget."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -20,7 +20,7 @@ def cost_under(max_usd: float):
     return check
 
 
-@predicate("cost_per_turn_under")
+@predicate("cost_per_turn_under", owasp=("ASI08",))
 def cost_per_turn_under(max_usd: float):
     """Per-turn cost must stay under limit."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -37,7 +37,7 @@ def cost_per_turn_under(max_usd: float):
     return check
 
 
-@predicate("token_budget")
+@predicate("token_budget", owasp=("ASI08",))
 def token_budget(max_tokens: int):
     """Session total tokens must stay under budget."""
     def check(event: Event, state: SessionState) -> PredicateResult:

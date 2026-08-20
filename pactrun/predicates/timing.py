@@ -6,7 +6,7 @@ from pactrun.core.models import Event, PredicateResult, SessionState
 from pactrun.predicates.base import predicate
 
 
-@predicate("max_latency")
+@predicate("max_latency", owasp=("ASI08",))
 def max_latency(max_ms: float):
     """No single event should exceed this latency."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -22,7 +22,7 @@ def max_latency(max_ms: float):
     return check
 
 
-@predicate("session_timeout")
+@predicate("session_timeout", owasp=("ASI08",))
 def session_timeout(max_ms: float):
     """Total session must complete within this time."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -36,7 +36,7 @@ def session_timeout(max_ms: float):
     return check
 
 
-@predicate("max_turns")
+@predicate("max_turns", owasp=("ASI08",))
 def max_turns(n: int):
     """Session must not exceed N turns."""
     def check(event: Event, state: SessionState) -> PredicateResult:

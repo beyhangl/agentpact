@@ -11,7 +11,7 @@ from pactrun.core.models import Event, PredicateResult, SessionState
 from pactrun.predicates.base import predicate
 
 
-@predicate("ai_disclosure_in_output")
+@predicate("ai_disclosure_in_output", owasp=("ASI09",))
 def ai_disclosure_in_output(
     must_contain=("automated assistant", "responses are AI-generated"),
     match: str = "any",

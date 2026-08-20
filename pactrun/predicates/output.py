@@ -16,7 +16,7 @@ _PII_PATTERNS = [
 ]
 
 
-@predicate("no_pii")
+@predicate("no_pii", owasp=("ASI06",))
 def no_pii():
     """Output must not contain PII (email, SSN, phone, credit card)."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -182,7 +182,7 @@ _SECRET_PATTERNS: list[tuple[str, str]] = [
 ]
 
 
-@predicate("no_secrets")
+@predicate("no_secrets", owasp=("ASI06", "ASI03",))
 def no_secrets(scan_tool_args: bool = False):
     """Output (and optionally tool args) must not contain leaked credentials.
 
@@ -212,7 +212,7 @@ def no_secrets(scan_tool_args: bool = False):
     return check
 
 
-@predicate("tenant_response_isolation")
+@predicate("tenant_response_isolation", owasp=("ASI03", "ASI06",))
 def tenant_response_isolation(
     tenant_key="tenant",
     *,
@@ -296,7 +296,7 @@ def _homoglyph_hits(text: str):
     return hits
 
 
-@predicate("no_invisible_text")
+@predicate("no_invisible_text", owasp=("ASI01", "ASI06",))
 def no_invisible_text(
     scan=("input", "output", "tool_result"),
     detect=("zero_width", "tags_block", "bidi"),
@@ -404,7 +404,7 @@ def _has_encoded_query(url: str, leak_param_names) -> bool:
     return False
 
 
-@predicate("no_exfil_links")
+@predicate("no_exfil_links", owasp=("ASI06",))
 def no_exfil_links(
     allow_hosts: list | None = None,
     forms=("markdown_image", "markdown_link", "html_image", "html_link"),

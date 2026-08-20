@@ -37,7 +37,7 @@ def _flatten_str_values(obj):
             yield from _flatten_str_values(v)
 
 
-@predicate("untrusted_taint_to_sink")
+@predicate("untrusted_taint_to_sink", owasp=("ASI06", "ASI01",))
 def untrusted_taint_to_sink(
     sink_tools=("send_email", "http_post", "create_issue", "slack_post"),
     *,
@@ -90,7 +90,7 @@ def untrusted_taint_to_sink(
     return check
 
 
-@predicate("no_exfiltration_after_untrusted")
+@predicate("no_exfiltration_after_untrusted", owasp=("ASI06", "ASI01",))
 def no_exfiltration_after_untrusted(
     untrusted_tools=("web_fetch", "read_email", "search", "browse"),
     exfil_tools=("send_email", "http_post", "slack_post", "webhook"),
@@ -151,7 +151,7 @@ def no_exfiltration_after_untrusted(
     return check
 
 
-@predicate("lethal_trifecta_guard")
+@predicate("lethal_trifecta_guard", owasp=("ASI06", "ASI03",))
 def lethal_trifecta_guard(
     untrusted_sources,
     private_data_tools,

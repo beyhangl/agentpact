@@ -70,6 +70,7 @@ An agent can pass every per-message guardrail and still run up a $50 bill, loop 
 | Session-level runtime enforcement (sync + async) | Pydantic-AI adapter; native CrewAI tool events |
 | 52 built-in predicates (cost, tools, **tool-args**, output, **schema/secrets**, timing, behavioral, **rate-limit**, **flow**, **injection/exfil**, **content-security**, **compliance**) | Formal multi-agent composition |
 | Recovery: log / warn / block / escalate / **approve** / retry / fallback | |
+| **OWASP Agentic Top-10 (2026) mapping** — runtime controls for 8 of 10 risks, `pactrun predicates --owasp` | |
 | **Prompt-injection & exfiltration defense** — hidden-text scan, output link/image exfil guard, untrusted→exfil chain, taint-to-sink, injection-phrase & canary-leak tripwires | |
 | **Argument-level tool guards** — JSON-Schema match, destructive-command block, path-sandbox, **per-field value allow/deny**, **required disclosure** | |
 | **Egress / SSRF guard** — host allow/deny + CIDR + block-private (`tool_host_within`) | |
@@ -324,6 +325,31 @@ contract = Contract("agent").require(cost_under(0.05), on_fail="escalate").on_es
 ```
 
 `retry` and `fallback` are control-flow actions handled by `@contract.enforce` (which owns the call); outside the decorator they surface as `RetrySignal` / `FallbackSignal` for you to handle. See [`examples/recovery.py`](examples/recovery.py).
+
+---
+
+## OWASP Agentic Top-10 coverage
+
+Predicates are tagged with the [OWASP Top 10 for Agentic Applications (2026)](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/) risks they help mitigate. pactrun ships runtime controls for **8 of the 10**:
+
+| Risk | Controls |
+|---|---|
+| **ASI01** Agent Goal Hijack | `no_injection_phrases` · `no_invisible_text` · `untrusted_taint_to_sink` · `no_exfiltration_after_untrusted` · `flow_progression` · `drift_bounds` · `canary_not_leaked` |
+| **ASI02** Tool Misuse & Exploitation | `tools_allowed` · `must_not_call` · `tool_args_match` · `no_destructive_args` · `tool_path_within` · `tool_arg_value_guard` · `tool_host_within` · `no_duplicate_side_effect` · rate/quota limits |
+| **ASI03** Identity & Privilege Abuse | `consent_token_required` · `multi_party_approval_required` · `tenant_response_isolation` · `no_secrets` · `lethal_trifecta_guard` |
+| **ASI04** Agentic Supply Chain | — *no runtime control* (registry/deployment concern) |
+| **ASI05** Unexpected Code Execution | `no_destructive_args` · `tool_path_within` |
+| **ASI06** Memory & Context Poisoning | `untrusted_taint_to_sink` · `lethal_trifecta_guard` · `no_exfil_links` · `no_invisible_text` · `no_pii` · `no_secrets` |
+| **ASI07** Insecure Inter-Agent Comms | `tool_host_within` |
+| **ASI08** Cascading Failures | `no_loops` · `bounded_error_retries` · `no_progress_stall` · `tool_error_rate_under` · cost/token/rate budgets |
+| **ASI09** Human-Agent Trust Exploitation | `consent_token_required` · `multi_party_approval_required` · `required_disclosure` · `ai_disclosure_in_output` · `approval_request_rate_under` |
+| **ASI10** Rogue Agents | — *no runtime control* (identity/orchestration concern) |
+
+```bash
+pactrun predicates --owasp     # this table, live from the registry
+```
+
+A tag means the predicate is a **partial runtime control** for that risk — not certified coverage, and not a substitute for a security review. The two gaps are honest: supply-chain and rogue-agent risks are deployment and identity concerns that a runtime contract library cannot observe.
 
 ---
 

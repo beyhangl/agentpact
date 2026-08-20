@@ -11,7 +11,7 @@ from pactrun.core.models import Event, PredicateResult, SessionState
 from pactrun.predicates.base import predicate
 
 
-@predicate("must_call")
+@predicate("must_call", owasp=("ASI02",))
 def must_call(tool: str):
     """Agent must call this tool by session end."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -26,7 +26,7 @@ def must_call(tool: str):
     return check
 
 
-@predicate("must_not_call")
+@predicate("must_not_call", owasp=("ASI02",))
 def must_not_call(tool: str):
     """Agent must never call this tool."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -42,7 +42,7 @@ def must_not_call(tool: str):
     return check
 
 
-@predicate("tool_order")
+@predicate("tool_order", owasp=("ASI02",))
 def tool_order(expected: list[str], strict: bool = False):
     """Tools must be called in this order (checked at session end)."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -63,7 +63,7 @@ def tool_order(expected: list[str], strict: bool = False):
     return check
 
 
-@predicate("tools_allowed")
+@predicate("tools_allowed", owasp=("ASI02",))
 def tools_allowed(whitelist: list[str]):
     """Only these tools may be called."""
     def check(event: Event, state: SessionState) -> PredicateResult:
@@ -80,7 +80,7 @@ def tools_allowed(whitelist: list[str]):
     return check
 
 
-@predicate("max_tool_calls")
+@predicate("max_tool_calls", owasp=("ASI02", "ASI08",))
 def max_tool_calls(limit: int):
     """Total tool calls must not exceed limit."""
     def check(event: Event, state: SessionState) -> PredicateResult:

@@ -13,7 +13,7 @@ from pactrun.predicates._signing import _action_sig, _approval_sig
 from pactrun.predicates.base import predicate
 
 
-@predicate("consent_token_required")
+@predicate("consent_token_required", owasp=("ASI03", "ASI09",))
 def consent_token_required(
     tools,
     *,
@@ -89,7 +89,7 @@ def consent_token_required(
     return check
 
 
-@predicate("multi_party_approval_required")
+@predicate("multi_party_approval_required", owasp=("ASI03", "ASI09",))
 def multi_party_approval_required(
     tools,
     n_required: int = 2,
